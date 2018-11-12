@@ -1,10 +1,11 @@
-package oio;
+package com.oio;
 
-import oio.factory.MyThreadFactory;
+import com.oio.factory.MyThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
@@ -15,7 +16,10 @@ import java.util.concurrent.TimeUnit;
 
 public class PlainOioServer {
 
+    private final static Logger LOG = LoggerFactory.getLogger(PlainOioServer.class);
+
     public void start(int port) throws Exception {
+        LOG.info("Server start at {}", port);
         final ServerSocket serverSocket = new ServerSocket(port);
         MyThreadFactory myThreadFactory = new MyThreadFactory();
         ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(1024);
@@ -24,12 +28,15 @@ public class PlainOioServer {
                 new ThreadPoolExecutor.CallerRunsPolicy());
 
         for(;;) {
+            LOG.info("Server waiting.");
             Socket clientSocket = serverSocket.accept();
+            LOG.info("Server create a new {}", clientSocket);
             executor.submit(() -> {
                 try {
                     OutputStream out = clientSocket.getOutputStream();
-                    out.write("Server:Echo".getBytes(Charset.forName("UTF-8")));
+                    out.write("Server Echo".getBytes(Charset.forName("UTF-8")));
                     out.flush();
+                    out.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 } finally {

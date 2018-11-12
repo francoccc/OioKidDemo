@@ -1,4 +1,4 @@
-package oio.factory;
+package com.oio.factory;
 
 import java.util.concurrent.ThreadFactory;
 
